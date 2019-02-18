@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" content="">
+    <title>ZIG</title>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+  <form name="myform">
+    URL発行データ：<br><textarea id="jsontext" name="json" rows="4" cols="40" style="width:700px;height:350px;">{
+    "material_code":"L000000000001",
+    "user_id":"123456789012345",
+    "play_offset":0,
+    "play_duration":115395,
+    "cache":[
+        {"id":0,"offset":0,"duration":10000, "op_pattern":"op1a"},
+        {"id":3,"offset":50000,"duration":30000, "op_pattern":"opAtom"} ],
+    "in_out":[
+        {"id":0, "disp_no":10,"in_offset":0, "in_timecode":"00:00:40.02", "out_offset":1000, "out_timecode":"00:02:19.29", "duration":5000},
+        {"id":1, "disp_no":8},
+        {"id":2, "disp_no":3},
+        {"id":3, "disp_no":6}, 
+        {"id":4, "disp_no":9,"in_offset":2000, "in_timecode":"00:00:40.02", "out_offset":21000, "out_timecode":"00:06:00.02", "duration":10000},
+        {"id":5, "disp_no":7},
+        {"id":6, "disp_no":4},
+        {"id":7, "disp_no":1},
+        {"id":8, "disp_no":5},
+        {"id":9, "disp_no":2, "in_offset":3000, "in_timecode":"00:07:00.02", "out_offset":50000, "out_timecode":"00:09:59.29", "duration":10000}  ],
+    "session_id":"1234567890123456789012345678901234567890123456789012345678901234567890",
+    "view_mode": 0
+}</textarea><br>
+    URL発行先:<br>
+    <input name="endpoint" id="endpoint" type="text" style="width:700px;" value="http://localhost:5000/viewerurl"/>
+     <button id="url_btn">URL発行</button><br>
+    発行されたURL:<br>
+    <input name="url" id="url" type="text" style="width:700px;" />
+    <button id="exec_btn">起動</button>
+  </form>
+  
+  <div id="XMLHttpRequest" ></div>
+  <div id="textStatus" ></div>
+  <div id="errorThrown" ></div>
+ 
+  <script>
+    var url_btn = document.getElementById('url_btn');
+    url_btn.addEventListener('click', function() {
+    	var button = $(this);
+    	button.attr("disabled", true);
+    	var json_text = $('#jsontext').val();
+    	var url = $('#endpoint').val();
+		var param =JSON.parse(json_text);
+		var data  = JSON.stringify(param);
+		
+		var xhr = new XMLHttpRequest();
+	    xhr.onreadystatechange = function()
+	    {
+	        var READYSTATE_COMPLETED = 4;
+	        var HTTP_STATUS_OK = 200;
+	 
+	        if( this.readyState == READYSTATE_COMPLETED
+	         && this.status == HTTP_STATUS_OK )
+	        {
+	            // レスポンスの表示
+	            alert( this.responseText );
+	            $('[name=result]').val(this.responseText);
+                button.attr("disabled", false);
+	        }
+	    }
+	 
+	    xhr.open( 'post', url, false );
+
+        xhr.setRequestHeader('Accept', 'application/json, text/javascript, text/plain');
+        xhr.setRequestHeader('Cache-Control', 'no-cache');
+        //xhr.setRequestHeader('Access-Control-Allow-Origin', '*');
+
+	 
+	    // サーバに対して解析方法を指定する
+	    xhr.setRequestHeader( 'Content-Type', 'application/json');
+	 
+	    // データをリクエスト ボディに含めて送信する
+	    xhr.send( data );
+		
+    });
+    var exec_btn = document.getElementById('exec_btn'); 
+    
+    exec_btn.addEventListener('click', function() {
+		window.open(document.myform.url.value, "Proxy Viewer", "width=1000,height=520,resizable=no,scrollbars=no");
+    });
+  </script>
+</body>
+</html>
